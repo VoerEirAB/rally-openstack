@@ -39,7 +39,7 @@ class ServerGenerator(context.Context):
                 "properties": {
                     "name": {"type": "string"}
                 },
-                "additionalProperties": False
+                "additionalProperties": True
             },
             "flavor": {
                 "description": "Name of flavor to boot server(s) with.",
@@ -47,7 +47,7 @@ class ServerGenerator(context.Context):
                 "properties": {
                     "name": {"type": "string"}
                 },
-                "additionalProperties": False
+                "additionalProperties": True
             },
             "servers_per_tenant": {
                 "description": "Number of servers to boot in each Tenant.",
