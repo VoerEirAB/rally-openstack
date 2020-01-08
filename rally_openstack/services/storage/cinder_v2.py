@@ -33,7 +33,7 @@ class CinderV2Service(service.Service, cinder_common.CinderMixin):
                       snapshot_id=None, source_volid=None, name=None,
                       description=None, volume_type=None,
                       availability_zone=None, metadata=None, imageRef=None,
-                      scheduler_hints=None):
+                      scheduler_hints=None, multiattach=False):
         """Creates a volume.
 
         :param size: Size of volume in GB
@@ -62,7 +62,8 @@ class CinderV2Service(service.Service, cinder_common.CinderMixin):
                   "availability_zone": availability_zone,
                   "metadata": metadata,
                   "imageRef": imageRef,
-                  "scheduler_hints": scheduler_hints}
+                  "scheduler_hints": scheduler_hints,
+                  "multiattach": multiattach}
         if isinstance(size, dict):
             size = random.randint(size["min"], size["max"])
 
