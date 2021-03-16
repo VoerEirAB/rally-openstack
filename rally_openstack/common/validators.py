@@ -497,7 +497,16 @@ class RequiredCinderServicesValidator(validation.Validator):
     def validate(self, context, config, plugin_cls, plugin_cfg):
 
         clients = context["admin"]["credential"].clients()
-        for service in clients.cinder().services.list():
+
+        av_ctx = config.get('contexts', {}).get('api_versions', {})
+        cinder_av_ctx = av_ctx.get('cinder', {})
+        default_version = getattr(clients, 'cinder').choose_version()
+        used_version = cinder_av_ctx.get('version', default_version)
+        service_type = cinder_av_ctx.get('service_type')
+        cinder_client = clients.cinder(version=used_version,
+                                       service_type=service_type)
+
+        for service in cinder_client.services.list():
             if (service.binary == str(self.services)
                     and service.state == str("up")):
                 return
@@ -580,10 +589,18 @@ class VolumeTypeExistsValidator(validation.Validator):
             self.fail("The parameter '%s' is required and should not be empty."
                       % self.param)
 
+        av_ctx = config.get('contexts', {}).get('api_versions', {})
+        cinder_av_ctx = av_ctx.get('cinder', {})
         for user in context["users"]:
             clients = user["credential"].clients()
+            default_version = getattr(clients, 'cinder').choose_version()
+            used_version = cinder_av_ctx.get('version', default_version)
+            service_type = cinder_av_ctx.get('service_type')
+            cinder_client = clients.cinder(version=used_version,
+                                           service_type=service_type)
+
             vt_names = [vt.name for vt in
-                        clients.cinder().volume_types.list()]
+                        cinder_client.volume_types.list()]
             ctx = config.get("contexts", {}).get("volume_types", [])
             vt_names += ctx
             if volume_type not in vt_names:
