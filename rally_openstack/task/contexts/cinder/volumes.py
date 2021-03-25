@@ -42,6 +42,9 @@ class VolumeGenerator(context.OpenStackContext):
             "volumes_per_tenant": {
                 "type": "integer",
                 "minimum": 1
+            },
+            "availability_zone": {
+                "type": "string"
             }
         },
         "required": ["size"],
