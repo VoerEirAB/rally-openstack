@@ -21,18 +21,9 @@ from rally.common import opts
 from rally.common.plugin import plugin
 from rally.task.processing import charts
 
-import rally_openstack
 
-
-if rally_openstack.__rally_version__ < (1, 5, 0):
-    # NOTE(andreykurilin): this is a workaround to make inheritance of
-    #   OSProfilerChart clear.
-    OutputEmbeddedChart = type("OutputEmbeddedChart", (object, ), {})
-    OutputEmbeddedExternalChart = type("OutputEmbeddedExternalChart",
-                                       (object, ), {})
-else:
-    OutputEmbeddedChart = charts.OutputEmbeddedChart
-    OutputEmbeddedExternalChart = charts.OutputEmbeddedExternalChart
+OutputEmbeddedChart = charts.OutputEmbeddedChart
+OutputEmbeddedExternalChart = charts.OutputEmbeddedExternalChart
 
 
 OPTS = {
@@ -130,13 +121,7 @@ class OSProfilerChart(OutputEmbeddedChart,
             title = "{0} : {1}".format(data["title"],
                                        data["data"]["trace_id"])
 
-            if rally_openstack.__rally_version__ < (1, 5, 0):
-                return {
-                    "title": title,
-                    "widget": "EmbeddedChart",
-                    "data": osp_report.replace("/script>", "\\/script>")
-                }
-            elif (mode and mode != "raw") and "workload_uuid" in data["data"]:
+            if (mode and mode != "raw") and "workload_uuid" in data["data"]:
                 # NOTE(andreykurilin): we need to rework our charts plugin
                 #   mechanism so it is available out of box
                 workload_uuid = data["data"]["workload_uuid"]

@@ -55,7 +55,6 @@ class CinderV3ServiceTestCase(test.ScenarioTestCase):
                   "metadata": None,
                   "imageRef": None,
                   "scheduler_hints": None,
-                  "multiattach": False,
                   "backup_id": None}
         self.cinder.volumes.create.assert_called_once_with(1, **kwargs)
         self.service._wait_available_volume.assert_called_once_with(
@@ -84,7 +83,6 @@ class CinderV3ServiceTestCase(test.ScenarioTestCase):
                   "metadata": None,
                   "imageRef": None,
                   "scheduler_hints": None,
-                  "multiattach": False,
                   "backup_id": None}
         self.cinder.volumes.create.assert_called_once_with(
             3, **kwargs)

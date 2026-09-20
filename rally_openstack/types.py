@@ -22,7 +22,6 @@ from rally.common.plugin import plugin
 from rally import exceptions
 from rally.task import types
 
-import rally_openstack
 from rally_openstack import osclients
 from rally_openstack.services.image import image
 from rally_openstack.services.storage import block
@@ -38,14 +37,7 @@ class OpenStackResourceType(types.ResourceType):
     """A base class for OpenStack ResourceTypes plugins with help-methods"""
 
     def __init__(self, context=None, cache=None):
-        if rally_openstack.__rally_version__ >= (0, 12):
-            super(OpenStackResourceType, self).__init__(context, cache)
-        else:
-            super(OpenStackResourceType, self).__init__()
-            self._context = context or {}
-            self._global_cache = cache or {}
-            self._global_cache.setdefault(self.get_name(), {})
-            self._cache = self._global_cache[self.get_name()]
+        super(OpenStackResourceType, self).__init__(context, cache)
 
         self._clients = None
         if self._context.get("admin"):
@@ -130,11 +122,6 @@ class OpenStackResourceType(types.ResourceType):
                                          matching))})
         return matching[0]
 
-    if rally_openstack.__rally_version__ < (0, 12):
-        @classmethod
-        def _get_doc(cls):
-            return cls.__doc__
-
 
 class DeprecatedBehaviourMixin(object):
     """A Mixin class which returns deprecated `transform` method."""
@@ -142,10 +129,8 @@ class DeprecatedBehaviourMixin(object):
     @classmethod
     def transform(cls, clients, resource_config):
         caller = traceback.format_stack(limit=2)[0]
-        if rally_openstack.__rally_version__ >= (0, 12):
-            # The new interface of ResourceClass is introduced with Rally 0.12
-            LOG.warning("Calling method `transform` of %s is deprecated:\n%s"
-                        % (cls.__name__, caller))
+        LOG.warning("Calling method `transform` of %s is deprecated:\n%s"
+                    % (cls.__name__, caller))
         if clients:
             # it doesn't matter "permission" of the user. it will pick the
             # first one
@@ -169,22 +154,6 @@ class Flavor(DeprecatedBehaviourMixin, OpenStackResourceType):
                 resources=novaclient.flavors.list(),
                 typename="flavor")
         return resource_id
-
-
-@plugin.configure(name="ec2_flavor")
-class EC2Flavor(DeprecatedBehaviourMixin, OpenStackResourceType):
-    """Find Nova's flavor Name by it's ID or regexp."""
-
-    def pre_process(self, resource_spec, config):
-        resource_name = resource_spec.get("name")
-        if not resource_name:
-            # NOTE(wtakase): gets resource name from OpenStack id
-            novaclient = self._clients.nova()
-            resource_name = types._name_from_id(
-                resource_config=resource_spec,
-                resources=novaclient.flavors.list(),
-                typename="flavor")
-        return resource_name
 
 
 @plugin.configure(name="glance_image")
@@ -219,29 +188,6 @@ class GlanceImageArguments(DeprecatedBehaviourMixin, OpenStackResourceType):
                               else "private")
                 resource_spec["visibility"] = visibility
         return resource_spec
-
-
-@plugin.configure(name="ec2_image")
-class EC2Image(DeprecatedBehaviourMixin, OpenStackResourceType):
-    """Find EC2 image ID."""
-
-    def pre_process(self, resource_spec, config):
-        if "name" not in resource_spec and "regex" not in resource_spec:
-            # NOTE(wtakase): gets resource name from OpenStack id
-            glanceclient = self._clients.glance()
-            resource_name = types._name_from_id(
-                resource_config=resource_spec,
-                resources=list(glanceclient.images.list()),
-                typename="image")
-            resource_spec["name"] = resource_name
-
-        # NOTE(wtakase): gets EC2 resource id from name or regex
-        ec2client = self._clients.ec2()
-        resource_ec2_id = types._id_from_name(
-            resource_config=resource_spec,
-            resources=list(ec2client.get_all_images()),
-            typename="ec2_image")
-        return resource_ec2_id
 
 
 @plugin.configure(name="cinder_volume_type")

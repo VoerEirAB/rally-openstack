@@ -26,7 +26,6 @@ from rally import exceptions
 from rally.plugins.common import validators
 from rally.task import types
 
-import rally_openstack
 from rally_openstack import consts
 from rally_openstack.contexts.keystone import roles
 from rally_openstack.contexts.nova import flavors as flavors_ctx
@@ -71,9 +70,8 @@ class RequiredOpenStackValidator(validation.RequiredPlatformValidator):
                 pass
 
 
-if rally_openstack.__rally_version__ >= (0, 13):
-    RequiredOpenStackValidator = validation.configure(
-        "required_platform", platform="openstack")(RequiredOpenStackValidator)
+RequiredOpenStackValidator = validation.configure(
+    "required_platform", platform="openstack")(RequiredOpenStackValidator)
 
 
 def with_roles_ctx():

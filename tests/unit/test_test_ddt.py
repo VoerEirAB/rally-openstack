@@ -41,7 +41,7 @@ class Test(object):
         tree = ast.parse(code).body[0]
         visitor = test_ddt.DDTDecoratorChecker()
         visitor.visit(tree)
-        self.assertEqual({"Test": {"lineno": 3,
+        self.assertEqual({"Test": {"lineno": 4,
                           "message": "Class Test has functions that use DDT, "
                                      "but is not decorated with `ddt.ddt`"}},
                          visitor.errors)

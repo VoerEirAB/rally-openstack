@@ -246,23 +246,23 @@ class MagnumScenarioTestCase(test.ScenarioTestCase):
             podname = podname + mock_random_choice.return_value
         k8s_api.create_namespaced_pod = mock.MagicMock(
             side_effect=[ApiException(status=403), self.pod])
-        not_ready_pod = api_client.models.V1Pod()
-        not_ready_status = api_client.models.V1PodStatus()
+        not_ready_pod = kubernetes_client.V1Pod()
+        not_ready_status = kubernetes_client.V1PodStatus()
         not_ready_status.phase = "not_ready"
         not_ready_pod.status = not_ready_status
-        almost_ready_pod = api_client.models.V1Pod()
-        almost_ready_status = api_client.models.V1PodStatus()
+        almost_ready_pod = kubernetes_client.V1Pod()
+        almost_ready_status = kubernetes_client.V1PodStatus()
         almost_ready_status.phase = "almost_ready"
         almost_ready_pod.status = almost_ready_status
-        ready_pod = api_client.models.V1Pod()
-        ready_condition = api_client.models.V1PodCondition(status="True",
+        ready_pod = kubernetes_client.V1Pod()
+        ready_condition = kubernetes_client.V1PodCondition(status="True",
                                                            type="Ready")
-        ready_status = api_client.models.V1PodStatus()
+        ready_status = kubernetes_client.V1PodStatus()
         ready_status.phase = "Running"
         ready_status.conditions = [ready_condition]
-        ready_pod_metadata = api_client.models.V1ObjectMeta()
+        ready_pod_metadata = kubernetes_client.V1ObjectMeta()
         ready_pod_metadata.uid = "123456789"
-        ready_pod_spec = api_client.models.V1PodSpec(
+        ready_pod_spec = kubernetes_client.V1PodSpec(
             node_name="host_abc",
             containers=[]
         )
@@ -290,10 +290,10 @@ class MagnumScenarioTestCase(test.ScenarioTestCase):
              "metadata": {"name": "nginx"}})
         k8s_api.create_namespaced_pod.return_value = self.pod
         mock_time.side_effect = [1, 2, 3, 4, 5, 1800, 1801]
-        not_ready_pod = api_client.models.V1Pod()
-        not_ready_status = api_client.models.V1PodStatus()
+        not_ready_pod = kubernetes_client.V1Pod()
+        not_ready_status = kubernetes_client.V1PodStatus()
         not_ready_status.phase = "not_ready"
-        not_ready_pod_metadata = api_client.models.V1ObjectMeta()
+        not_ready_pod_metadata = kubernetes_client.V1ObjectMeta()
         not_ready_pod_metadata.uid = "123456789"
         not_ready_pod.status = not_ready_status
         not_ready_pod.metadata = not_ready_pod_metadata
@@ -332,19 +332,19 @@ class MagnumScenarioTestCase(test.ScenarioTestCase):
         for i in range(5):
             suffix = suffix + mock_random_choice.return_value
         rcname = manifest["metadata"]["name"] + suffix
-        rc = api_client.models.V1ReplicationController()
-        rc.spec = api_client.models.V1ReplicationControllerSpec()
+        rc = kubernetes_client.V1ReplicationController()
+        rc.spec = kubernetes_client.V1ReplicationControllerSpec()
         rc.spec.replicas = manifest["spec"]["replicas"]
         k8s_api.create_namespaced_replication_controller.return_value = rc
-        not_ready_rc = api_client.models.V1ReplicationController()
+        not_ready_rc = kubernetes_client.V1ReplicationController()
         not_ready_rc_status = (
-            api_client.models.V1ReplicationControllerStatus(replicas=0))
+            kubernetes_client.V1ReplicationControllerStatus(replicas=0))
         not_ready_rc.status = not_ready_rc_status
-        ready_rc = api_client.models.V1ReplicationController()
-        ready_rc_status = api_client.models.V1ReplicationControllerStatus(
+        ready_rc = kubernetes_client.V1ReplicationController()
+        ready_rc_status = kubernetes_client.V1ReplicationControllerStatus(
             replicas=manifest["spec"]["replicas"]
         )
-        ready_rc_metadata = api_client.models.V1ObjectMeta()
+        ready_rc_metadata = kubernetes_client.V1ObjectMeta()
         ready_rc_metadata.uid = "123456789"
         ready_rc_metadata.name = rcname
         ready_rc.status = ready_rc_status
@@ -374,15 +374,15 @@ class MagnumScenarioTestCase(test.ScenarioTestCase):
                       "template": {"metadata":
                                    {"labels":
                                     {"name": "nginx"}}}}})
-        rc = api_client.models.V1ReplicationController()
-        rc.spec = api_client.models.V1ReplicationControllerSpec()
+        rc = kubernetes_client.V1ReplicationController()
+        rc.spec = kubernetes_client.V1ReplicationControllerSpec()
         rc.spec.replicas = manifest["spec"]["replicas"]
         mock_time.side_effect = [1, 2, 3, 4, 5, 1800, 1801]
         k8s_api.create_namespaced_replication_controller.return_value = rc
-        not_ready_rc = api_client.models.V1ReplicationController()
+        not_ready_rc = kubernetes_client.V1ReplicationController()
         not_ready_rc_status = (
-            api_client.models.V1ReplicationControllerStatus(replicas=0))
-        not_ready_rc_metadata = api_client.models.V1ObjectMeta()
+            kubernetes_client.V1ReplicationControllerStatus(replicas=0))
+        not_ready_rc_metadata = kubernetes_client.V1ObjectMeta()
         not_ready_rc_metadata.uid = "123456789"
         not_ready_rc.status = not_ready_rc_status
         not_ready_rc.metadata = not_ready_rc_metadata

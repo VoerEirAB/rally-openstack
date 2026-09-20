@@ -83,7 +83,10 @@ def skip_ignored_lines(func):
         line = physical_line.strip()
         if not line or line.startswith("#") or line.endswith("# noqa"):
             return
-        yield next(func(logical_line, physical_line, filename))
+        try:
+            yield next(func(logical_line, physical_line, filename))
+        except StopIteration:
+            return
 
     return wrapper
 

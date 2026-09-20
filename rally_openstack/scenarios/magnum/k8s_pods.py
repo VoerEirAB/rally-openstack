@@ -48,7 +48,7 @@ class CreatePods(utils.MagnumScenario):
         for manifest in manifests:
             with open(manifest, "r") as f:
                 manifest_str = f.read()
-            manifest = yaml.load(manifest_str)
+            manifest = yaml.safe_load(manifest_str)
             pod = self._create_v1pod(manifest)
             msg = ("Pod isn't created")
             self.assertTrue(pod, err_msg=msg)
@@ -67,7 +67,7 @@ class CreateRcs(utils.MagnumScenario):
         for manifest in manifests:
             with open(manifest, "r") as f:
                 manifest_str = f.read()
-            manifest = yaml.load(manifest_str)
+            manifest = yaml.safe_load(manifest_str)
             rc = self._create_v1rc(manifest)
             msg = ("RC isn't created")
             self.assertTrue(rc, err_msg=msg)

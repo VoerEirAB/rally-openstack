@@ -1576,12 +1576,6 @@ class FakeSwiftClient(FakeObjectManager):
     pass
 
 
-class FakeEC2Client(object):
-
-    def __init__(self):
-        pass
-
-
 class FakeSenlinClient(object):
 
     def __init__(self):
@@ -1627,7 +1621,6 @@ class FakeClients(object):
         self._swift = None
         self._murano = None
         self._monasca = None
-        self._ec2 = None
         self._senlin = None
         self._watcher = None
         self._barbican = None
@@ -1719,11 +1712,6 @@ class FakeClients(object):
         if not self._murano:
             self._murano = FakeMuranoClient()
         return self._murano
-
-    def ec2(self):
-        if not self._ec2:
-            self._ec2 = FakeEC2Client()
-        return self._ec2
 
     def senlin(self):
         if not self._senlin:

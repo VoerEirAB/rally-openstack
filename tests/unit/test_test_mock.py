@@ -330,7 +330,7 @@ def test_func(self, mock_args, mock_args2, mock_some_longer_args):
         self.assertEqual(
             [
                 {
-                    "lineno": 2,
+                    "lineno": 7,
                     "messages": [
                         "Argument 'bar_foo_misnamed' misnamed; should be "
                         "either of %s that is derived from the mock decorator "
@@ -365,7 +365,7 @@ def test_func(self, mock_args, mock_args2, mock_some_longer_args):
         self.assertEqual(
             [
                 {
-                    "lineno": 2,
+                    "lineno": 7,
                     "messages": [
                         "Argument 'bar_foo_misnamed' misnamed; should be "
                         "either of %s that is derived from the mock decorator "
@@ -401,7 +401,7 @@ def test_func(self, mock_args, mock_args2, mock_some_longer_args):
         self.assertEqual(
             [
                 {
-                    "lineno": 2,
+                    "lineno": 7,
                     "messages": [
                         "Missing or malformed argument for {'mock_foo', "
                         "'mock_foo_bar', 'mock_pkg_foo_bar', ...} decorator."
@@ -433,7 +433,7 @@ def test_func(self, mock_args, mock_args2, mock_some_longer_args):
             self.visitor.errors[0]["decs"]
         )
 
-        self.assertEqual(2, self.visitor.errors[0]["lineno"])
+        self.assertEqual(7, self.visitor.errors[0]["lineno"])
 
     def test_visit_ok(self):
         self.visitor.classname_python = "my_class_object"

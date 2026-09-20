@@ -64,7 +64,6 @@ class CinderV3Service(service.Service, cinder_common.CinderMixin):
                   "metadata": metadata,
                   "imageRef": imageRef,
                   "scheduler_hints": scheduler_hints,
-                  "multiattach": multiattach,
                   "backup_id": backup_id}
         if isinstance(size, dict):
             size = random.randint(size["min"], size["max"])

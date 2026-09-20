@@ -15,6 +15,7 @@ pytest-xdist                                           # MIT
 coverage!=4.4                                          # Apache License, Version 2.0
 ddt                                                    # MIT
 mock                                                   # UNKNOWN
+packaging                                              # Apache Software License, BSD License
 python-dateutil                                        # Dual License
 testtools                                              # UNKNOWN
 

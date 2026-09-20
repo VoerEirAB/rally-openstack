@@ -171,42 +171,6 @@ class FlavorTestCase(test.TestCase):
                           resource_spec=resource_spec, config={})
 
 
-class EC2FlavorTestCase(test.TestCase):
-
-    def setUp(self):
-        super(EC2FlavorTestCase, self).setUp()
-        self.clients = fakes.FakeClients()
-        self.clients.nova().flavors._cache(fakes.FakeResource(name="m1.tiny",
-                                                              id="1"))
-        self.clients.nova().flavors._cache(fakes.FakeResource(name="m1.nano",
-                                                              id="2"))
-        self.clients.nova().flavors._cache(fakes.FakeResource(name="m1.large",
-                                                              id="3"))
-        self.clients.nova().flavors._cache(fakes.FakeResource(name="m1.xlarge",
-                                                              id="3"))
-        self.type_cls = types.EC2Flavor(
-            context={"admin": {"credential": mock.Mock()}})
-        self.type_cls._clients = self.clients
-
-    def test_preprocess_by_name(self):
-        resource_spec = {"name": "m1.nano"}
-        flavor_name = self.type_cls.pre_process(
-            resource_spec=resource_spec, config={})
-        self.assertEqual("m1.nano", flavor_name)
-
-    def test_preprocess_by_id(self):
-        resource_spec = {"id": "2"}
-        flavor_name = self.type_cls.pre_process(
-            resource_spec=resource_spec, config={})
-        self.assertEqual("m1.nano", flavor_name)
-
-    def test_preprocess_by_id_no_match(self):
-        resource_spec = {"id": "4"}
-        self.assertRaises(exceptions.InvalidScenarioArgument,
-                          self.type_cls.pre_process,
-                          resource_spec=resource_spec, config={})
-
-
 class GlanceImageTestCase(test.TestCase):
 
     def setUp(self):
@@ -291,86 +255,6 @@ class GlanceImageArgsTestCase(test.TestCase):
             {"visibility": "private"},
             types.GlanceImageArguments({}).pre_process(
                 config={}, resource_spec={"is_public": False}))
-
-
-class EC2ImageTestCase(test.TestCase):
-
-    def setUp(self):
-        super(EC2ImageTestCase, self).setUp()
-        self.clients = fakes.FakeClients()
-        image1 = fakes.FakeResource(name="cirros-0.3.4-uec", id="100")
-        self.clients.glance().images._cache(image1)
-        image2 = fakes.FakeResource(name="cirros-0.3.4-uec-ramdisk", id="102")
-        self.clients.glance().images._cache(image2)
-        image3 = fakes.FakeResource(name="cirros-0.3.4-uec-ramdisk-copy",
-                                    id="102")
-        self.clients.glance().images._cache(image3)
-        image4 = fakes.FakeResource(name="cirros-0.3.4-uec-ramdisk-copy",
-                                    id="103")
-        self.clients.glance().images._cache(image4)
-
-        ec2_image1 = fakes.FakeResource(name="cirros-0.3.4-uec", id="200")
-        ec2_image2 = fakes.FakeResource(name="cirros-0.3.4-uec-ramdisk",
-                                        id="201")
-        ec2_image3 = fakes.FakeResource(name="cirros-0.3.4-uec-ramdisk-copy",
-                                        id="202")
-        ec2_image4 = fakes.FakeResource(name="cirros-0.3.4-uec-ramdisk-copy",
-                                        id="203")
-
-        self.clients.ec2().get_all_images = mock.Mock(
-            return_value=[ec2_image1, ec2_image2, ec2_image3, ec2_image4])
-
-        self.type_cls = types.EC2Image(
-            context={"admin": {"credential": mock.Mock()}})
-        self.type_cls._clients = self.clients
-
-    def test_preprocess_by_name(self):
-        resource_spec = {"name": "^cirros-0.3.4-uec$"}
-        ec2_image_id = self.type_cls.pre_process(resource_spec=resource_spec,
-                                                 config={})
-        self.assertEqual("200", ec2_image_id)
-
-    def test_preprocess_by_id(self):
-        resource_spec = {"id": "100"}
-        ec2_image_id = self.type_cls.pre_process(resource_spec=resource_spec,
-                                                 config={})
-        self.assertEqual("200", ec2_image_id)
-
-    def test_preprocess_by_id_no_match(self):
-        resource_spec = {"id": "101"}
-        self.assertRaises(exceptions.InvalidScenarioArgument,
-                          self.type_cls.pre_process,
-                          resource_spec=resource_spec, config={})
-
-    def test_preprocess_by_name_no_match(self):
-        resource_spec = {"name": "cirros-0.3.4-uec-boot"}
-        self.assertRaises(exceptions.InvalidScenarioArgument,
-                          self.type_cls.pre_process,
-                          resource_spec=resource_spec, config={})
-
-    def test_preprocess_by_name_match_multiple(self):
-        resource_spec = {"name": "cirros-0.3.4-uec-ramdisk-copy"}
-        self.assertRaises(exceptions.InvalidScenarioArgument,
-                          self.type_cls.pre_process,
-                          resource_spec=resource_spec, config={})
-
-    def test_preprocess_by_regex(self):
-        resource_spec = {"regex": "-uec$"}
-        ec2_image_id = self.type_cls.pre_process(resource_spec=resource_spec,
-                                                 config={})
-        self.assertEqual("200", ec2_image_id)
-
-    def test_preprocess_by_regex_match_multiple(self):
-        resource_spec = {"regex": "^cirros"}
-        self.assertRaises(exceptions.InvalidScenarioArgument,
-                          self.type_cls.pre_process,
-                          resource_spec=resource_spec, config={})
-
-    def test_preprocess_by_regex_no_match(self):
-        resource_spec = {"regex": "-boot$"}
-        self.assertRaises(exceptions.InvalidScenarioArgument,
-                          self.type_cls.pre_process,
-                          resource_spec=resource_spec, config={})
 
 
 class VolumeTypeTestCase(test.TestCase):

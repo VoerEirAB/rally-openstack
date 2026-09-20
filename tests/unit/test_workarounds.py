@@ -20,48 +20,34 @@ This module should contain historical notes and checks to do not forget remove
 these workaround.
 """
 
-import pkg_resources
+import importlib.metadata
+
+from packaging import requirements
 
 from tests.unit import test
 
 
 class WorkaroundTestCase(test.TestCase):
-    WORKAROUNDS = [
-        ([0, 12], [
-            "'rally_openstack.__init__' module contains a hack for loading "
-            "configuration options.",
-
-            "'rally_openstack.types' module contains a compatibility layer for"
-            " an old interface of ResourceTypes."]
-         ),
-        ([0, 13], [
-            "'rally_openstack.validators' module has a check to do not "
-            "register 'required_platforms@openstack' validator for old Rally "
-            "releases."
-        ]),
-        ([1, 2], [
-            "'existing@openstack' platform puts 'traceback' in check method "
-            "in case of native keystone errors. It is redundant. "
-            "See https://review.opendev.org/597197"
-        ]),
-        ([1, 5], [
-            "New chart classes exist anyway at Rally side, so no need for "
-            "backward compatibility layer at rally_openstack.embecharts. "
-            "See https://review.opendev.org/#/c/653500/"
-        ])
-    ]
+    # NOTE: This list should contain only workarounds for Rally versions that
+    #   are still >= the minimum required version declared in
+    #   requirements.txt. As soon as the minimum required version is bumped
+    #   past a workaround's version, the workaround becomes dead code and
+    #   should be removed (together with its entry in this list).
+    WORKAROUNDS = []
 
     def get_min_required_version(self):
-        package = pkg_resources.get_distribution("rally-openstack")
-        requirement = [p for p in package.requires() if p.name == "rally"][0]
-
-        for statement, version in requirement.specs:
-            version = [int(i) for i in version.split(".")]
-            if statement == ">=":
-                return version
-            elif statement == ">":
-                version[-1] += 1
-                return version
+        reqs = importlib.metadata.requires("rally-openstack") or []
+        for req_str in reqs:
+            req = requirements.Requirement(req_str)
+            if req.name != "rally":
+                continue
+            for specifier in req.specifier:
+                if specifier.operator == ">=":
+                    return [int(i) for i in specifier.version.split(".")]
+                elif specifier.operator == ">":
+                    version = [int(i) for i in specifier.version.split(".")]
+                    version[-1] += 1
+                    return version
         self.skip("Failed to get a minimum required version of Rally "
                   "framework.")
 
