@@ -289,6 +289,26 @@ class CinderServersTestCase(test.ScenarioTestCase):
             scenario._boot_server.return_value, volume)
         mock_service.delete_volume.assert_called_once_with(volume)
 
+    def test_create_snapshot_and_attach_volume_with_create_volume_kwargs(
+            self):
+        mock_service = self.mock_cinder.return_value
+        scenario = volumes.CreateSnapshotAndAttachVolume(self._get_context())
+        scenario._boot_server = mock.MagicMock()
+        scenario._attach_volume = mock.MagicMock()
+        scenario._detach_volume = mock.MagicMock()
+        scenario.run("img", "flavor",
+                     create_volume_kwargs={"metadata": {"key": "value"}})
+
+        volume = mock_service.create_volume.return_value
+        snapshot = mock_service.create_snapshot.return_value
+        mock_service.create_volume.assert_called_once_with(
+            {"min": 1, "max": 5}, volume_type=None,
+            metadata={"key": "value"})
+        mock_service.create_snapshot.assert_called_once_with(volume.id,
+                                                             force=False)
+        mock_service.delete_snapshot.assert_called_once_with(snapshot)
+        mock_service.delete_volume.assert_called_once_with(volume)
+
     @mock.patch("random.choice")
     def test_create_snapshot_and_attach_volume_use_volume_type_with_name(
             self, mock_choice):
