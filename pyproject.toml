@@ -55,7 +55,7 @@ rally_openstack = "rally_openstack.common.cfg.opts:list_opts"
 files = [
     "rally_openstack",
 ]
-python_version = "3.10"
+python_version = "3.12"
 disallow_untyped_defs = true
 check_untyped_defs = true
 allow_redefinition = true

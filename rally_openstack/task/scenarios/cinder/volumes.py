@@ -478,7 +478,7 @@ class CreateSnapshotAndAttachVolume(cinder_utils.CinderBasic,
                                     nova_utils.NovaScenario):
 
     def run(self, image, flavor, volume_type=None, size=None,
-            create_vm_params=None, **kwargs):
+            create_vm_params=None, create_volume_kwargs=None, **kwargs):
         """Create vm, volume, snapshot and attach/detach volume.
 
         :param image: Glance image name to use for the VM
@@ -489,13 +489,17 @@ class CreateSnapshotAndAttachVolume(cinder_utils.CinderBasic,
                         max - maximum size volumes will be created as.
                      default values: {"min": 1, "max": 5}
         :param create_vm_params: optional arguments for VM creation
+        :param create_volume_kwargs: optional arguments for volume creation
         :param kwargs: Optional parameters used during volume
                        snapshot creation.
         """
         if size is None:
             size = {"min": 1, "max": 5}
 
-        volume = self.cinder.create_volume(size, volume_type=volume_type)
+        create_volume_kwargs = create_volume_kwargs or {}
+
+        volume = self.cinder.create_volume(size, volume_type=volume_type,
+                                           **create_volume_kwargs)
         snapshot = self.cinder.create_snapshot(volume.id, force=False,
                                                **kwargs)
         create_vm_params = create_vm_params or {}
