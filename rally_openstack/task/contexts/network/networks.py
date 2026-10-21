@@ -90,7 +90,7 @@ class Network(context.OpenStackContext):
     }
 
     DEFAULT_CONFIG = {
-        "start_cidr": "10.2.0.0/24",
+        "start_cidr": "10.2.0.0/16",
         "networks_per_tenant": 1,
         "subnets_per_network": 1,
         "network_create_args": {},

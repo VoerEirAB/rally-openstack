@@ -423,7 +423,8 @@ class CreateAndAttachVolume(cinder_utils.CinderBasic,
         "Use 'create_vm_params' for additional instance parameters.",
         "0.2.0", ["kwargs"], once=True)
     def run(self, size, image, flavor, create_volume_params=None,
-            force_delete=False, create_vm_params=None, **kwargs):
+            force_delete=False, create_vm_params=None,
+            create_volume_kwargs=None, **kwargs):
         """Create a VM and attach a volume to it.
 
         Simple test to create a VM and attach a volume, then
@@ -438,10 +439,12 @@ class CreateAndAttachVolume(cinder_utils.CinderBasic,
         :param create_volume_params: optional arguments for volume creation
         :param create_vm_params: optional arguments for VM creation
         :param force_delete: True if force_delete should be used
+        :param create_volume_kwargs: optional arguments for volume creation
         :param kwargs: (deprecated) optional arguments for VM creation
         """
 
-        create_volume_params = create_volume_params or {}
+        create_volume_params = {**(create_volume_params or {}),
+                                **(create_volume_kwargs or {})}
 
         if kwargs and create_vm_params:
             raise ValueError("You can not set both 'kwargs' "
@@ -478,7 +481,7 @@ class CreateSnapshotAndAttachVolume(cinder_utils.CinderBasic,
                                     nova_utils.NovaScenario):
 
     def run(self, image, flavor, volume_type=None, size=None,
-            create_vm_params=None, **kwargs):
+            create_vm_params=None, create_volume_kwargs=None, **kwargs):
         """Create vm, volume, snapshot and attach/detach volume.
 
         :param image: Glance image name to use for the VM
@@ -494,8 +497,10 @@ class CreateSnapshotAndAttachVolume(cinder_utils.CinderBasic,
         """
         if size is None:
             size = {"min": 1, "max": 5}
+        create_volume_kwargs = create_volume_kwargs or {}
 
-        volume = self.cinder.create_volume(size, volume_type=volume_type)
+        volume = self.cinder.create_volume(size, volume_type=volume_type,
+                                           **create_volume_kwargs)
         snapshot = self.cinder.create_snapshot(volume.id, force=False,
                                                **kwargs)
         create_vm_params = create_vm_params or {}
@@ -573,7 +578,8 @@ class CreateNestedSnapshotsAndAttachVolume(cinder_utils.CinderBasic,
 
         nes_objs = [(server, source_vol, snapshot)]
         for i in range(nested_level - 1):
-            volume = self.cinder.create_volume(size, snapshot_id=snapshot.id)
+            volume = self.cinder.create_volume(size, snapshot_id=snapshot.id,
+                                               **create_volume_kwargs)
             snapshot = self.cinder.create_snapshot(volume.id, force=False,
                                                    **create_snapshot_kwargs)
             self._attach_volume(server, volume)

@@ -42,6 +42,9 @@ class VolumeGenerator(context.OpenStackContext):
             "volumes_per_tenant": {
                 "type": "integer",
                 "minimum": 1
+            },
+            "availability_zone": {
+                "type": "string"
             }
         },
         "required": ["size"],
@@ -56,6 +59,7 @@ class VolumeGenerator(context.OpenStackContext):
         size = self.config["size"]
         volume_type = self.config.get("type", None)
         volumes_per_tenant = self.config["volumes_per_tenant"]
+        availability_zone = self.config.get("availability_zone", None)
 
         for user, tenant_id in self._iterate_per_tenants():
             self.context["tenants"][tenant_id].setdefault("volumes", [])
@@ -65,8 +69,10 @@ class VolumeGenerator(context.OpenStackContext):
                 name_generator=self.generate_random_name,
                 atomic_inst=self.atomic_actions())
             for i in range(volumes_per_tenant):
-                vol = cinder_service.create_volume(size,
-                                                   volume_type=volume_type)
+                vol = cinder_service.create_volume(
+                    size,
+                    availability_zone=availability_zone,
+                    volume_type=volume_type)
                 self.context["tenants"][tenant_id]["volumes"].append(
                     vol._as_dict())
 
